@@ -1,0 +1,24 @@
+<!--
+  ~ Copyright (c) 2022 - Irfanul Haq.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:pathData="M17.25,10.5C17.25,14.2279 14.2279,17.25 10.5,17.25C6.7721,17.25 3.75,14.2279 3.75,10.5C3.75,6.7721 6.7721,3.75 10.5,3.75C14.2279,3.75 17.25,6.7721 17.25,10.5Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.5"
+      android:fillColor="#00000000"
+      android:strokeColor="#707070"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M15.5,15.5L18.5,18.5"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.5"
+      android:fillColor="#00000000"
+      android:strokeColor="#707070"
+      android:strokeLineCap="round"/>
+</vector>
