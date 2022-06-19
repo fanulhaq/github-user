@@ -29,7 +29,8 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_centerVertical="true"
-                android:src="@drawable/ic_circle"
+                android:src="@drawable/ic_circle_placeholder"
+                imageCircleUrl="@{data.avatar}"
                 tools:ignore="ContentDescription" />
 
             <TextView

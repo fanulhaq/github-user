@@ -8,6 +8,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
+import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.fanulhaq.githubuser.R
@@ -50,15 +52,15 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 }
             })
 
-//            etSearch.setOnEditorActionListener(OnEditorActionListener { _, actionId, _ ->
-//                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-//                    if(!etSearch.text.isNullOrEmpty()) {
-//                        viewModel.search("${etSearch.text}")
-//                    }
-//                    return@OnEditorActionListener true
-//                }
-//                false
-//            })
+            etSearch.setOnEditorActionListener(TextView.OnEditorActionListener { _, actionId, _ ->
+                if (actionId == IME_ACTION_SEARCH) {
+                    if (!etSearch.text.isNullOrEmpty()) {
+                        viewModel.search("${etSearch.text}")
+                    }
+                    return@OnEditorActionListener true
+                }
+                false
+            })
         }
 
         subscribeToObservables()
