@@ -5,12 +5,12 @@
 package com.fanulhaq.githubuser.ui.search
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.fanulhaq.githubuser.data.local.search.SearchModel
 import com.fanulhaq.githubuser.data.repository.search.SearchRepoImpl
 import com.fanulhaq.githubuser.data.states.Resource
 import com.fanulhaq.githubuser.ui.base.BaseViewModel
-import com.fanulhaq.githubuser.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -24,7 +24,7 @@ class SearchVM @Inject constructor(
     private val repository: SearchRepoImpl
 ): BaseViewModel() {
 
-    private var _search = SingleLiveEvent<Resource<List<SearchModel>>>()
+    private var _search = MutableLiveData<Resource<List<SearchModel>>>()
     val search: LiveData<Resource<List<SearchModel>>>
         get() = _search
 

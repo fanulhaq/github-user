@@ -4,7 +4,6 @@
 
 package com.fanulhaq.githubuser.data.local.search
 
-import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -16,13 +15,7 @@ interface SearchDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(data: List<SearchModel>)
 
-    @Query("SELECT * FROM search WHERE username LIKE '%' || :key || '%'")
-    fun pagingSource(key: String): PagingSource<Int, SearchModel>
-
-    @Query("DELETE FROM search")
-    suspend fun deleteAll()
-
-    @Query("SELECT * FROM search WHERE username LIKE '%' || :key || '%'")
+    @Query("SELECT * FROM search WHERE username LIKE '%' || :key || '%' LIMIT 30")
     fun getDataWithKey(key: String): Flow<List<SearchModel>>
 
     @Query("DELETE FROM search WHERE username LIKE '%' || :key || '%'")

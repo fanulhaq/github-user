@@ -18,7 +18,7 @@
             android:layout_height="40dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:indeterminateTint="#359B89"
+            android:indeterminateTint="@color/colorLoading"
             app:layout_constraintBottom_toTopOf="@+id/retry_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

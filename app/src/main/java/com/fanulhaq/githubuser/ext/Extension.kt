@@ -2,7 +2,6 @@
  * Copyright (c) 2022 - Irfanul Haq.
  */
 
-@file:Suppress("INTEGER_OVERFLOW")
 @file:SuppressLint("SimpleDateFormat")
 
 package com.fanulhaq.githubuser.ext
@@ -14,6 +13,7 @@ import android.widget.Toast
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 fun Context?.toast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, duration).show()
@@ -73,41 +73,38 @@ fun String.dateToMillis(format: String = "yyyy-MM-dd") : Long {
     }
 }
 
-const val SECOND = 1000
-const val MINUTE = 60 * SECOND
-const val HOUR = 60 * MINUTE
-const val DAY = 24 * HOUR
-const val MONTH = 30 * DAY
-const val YEAR = 12 * MONTH
-
-fun String.countDateUpdate(format: String = "yyyy-MM-dd'T'HH:mm:ss.'Z'") : String {
+fun String.countDateUpdate(format: String = "yyyy-MM-dd'T'HH:mm:ss'Z'") : String {
     val now = getLocaleDateOrTimeGMT7().dateToMillis()
     val date = this.dateToMillis(format)
     val ms = now - date
+    val days = TimeUnit.MILLISECONDS.toDays(ms)
     return when {
-        ms >= YEAR -> {
-            val rs = (ms/YEAR).toInt()
+        days >= 365 -> {
+            val rs = (days/365).toInt()
             "$rs year${if(rs > 1) "s" else ""} ago"
         }
-        ms >= MONTH -> {
-            val rs = (ms/MONTH).toInt()
+        days >= 30 -> {
+            val rs = (days/30).toInt()
             "$rs month${if(rs > 1) "s" else ""} ago"
         }
-        ms >= DAY -> {
-            val rs = (ms/DAY).toInt()
-            "$rs day${if(rs > 1) "s" else ""} ago"
-        }
-        ms >= HOUR -> {
-            val rs = (ms/HOUR).toInt()
-            "$rs hour${if(rs > 1) "s" else ""} ago"
-        }
-        ms >= MINUTE -> {
-            val rs = (ms/MINUTE).toInt()
-            "$rs minute${if(rs > 1) "s" else ""} ago"
+        days >= 1 -> {
+            "$days day${if(days > 1) "s" else ""} ago"
         }
         else -> {
-            val rs = (ms/SECOND).toInt()
-            "$rs second${if(rs > 1) "s" else ""} ago"
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(ms)
+            when {
+                minutes >= 60 -> {
+                    val rs = (minutes/60).toInt()
+                    "$rs hour${if(rs > 1) "s" else ""} ago"
+                }
+                minutes >= 1 -> {
+                    "$minutes minute${if(minutes > 1) "s" else ""} ago"
+                }
+                else -> {
+                    val seconds = TimeUnit.MILLISECONDS.toSeconds(ms)
+                    "$seconds second${if(seconds > 1) "s" else ""} ago"
+                }
+            }
         }
     }
 }

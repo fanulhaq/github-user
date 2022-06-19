@@ -23,7 +23,7 @@ class SearchRepoImpl @Inject constructor(
     override suspend fun search(q: String): Flow<Resource<List<SearchModel>>> {
         return object : ResourceBound<List<SearchModel>, SearchResponse<SearchModel>>() {
             override suspend fun saveRemoteData(response: SearchResponse<SearchModel>) = response.items?.let { searchDao.insertAll(it) }
-            override suspend fun fetchFromRemote(): Response<SearchResponse<SearchModel>> = githubApi.search(q = q, per_page = 20)
+            override suspend fun fetchFromRemote(): Response<SearchResponse<SearchModel>> = githubApi.search(q = q)
             override suspend fun deleteData() = searchDao.deleteWithKey(q)
             override fun fetchFromLocal(): Flow<List<SearchModel>> = searchDao.getDataWithKey(q)
         }.asFlow()

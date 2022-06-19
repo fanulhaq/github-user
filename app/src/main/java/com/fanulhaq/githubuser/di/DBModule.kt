@@ -30,4 +30,16 @@ class DBModule {
     @Singleton
     @Provides
     fun provideSearchDao(db: RoomDB) = db.searchDao()
+
+    @Singleton
+    @Provides
+    fun provideDetailDao(db: RoomDB) = db.detailDao()
+
+    @Singleton
+    @Provides
+    fun provideReposDao(db: RoomDB) = db.reposDao()
+
+    @Singleton
+    @Provides
+    fun providePageKeyDao(db: RoomDB) = db.pageKeyDao()
 }

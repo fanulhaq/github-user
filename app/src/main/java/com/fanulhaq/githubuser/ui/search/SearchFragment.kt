@@ -6,10 +6,9 @@ package com.fanulhaq.githubuser.ui.search
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.fanulhaq.githubuser.R
@@ -33,13 +32,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     private val viewModel: SearchVM by viewModels()
     @Inject lateinit var searchAdapter: SearchAdapter
 
+    private var afterMoveToDetail = false
+
     override fun initViews() {
         super.initViews()
         with(binding) {
-            thisFragment = this@SearchFragment
             recyclerView.adapter = searchAdapter
             searchAdapter.listener = this@SearchFragment
-
             etSearch.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
@@ -47,7 +46,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                     if(s.isEmpty()) {
                         searchAdapter.clearAdapter()
                     } else {
-                        viewModel.search("$s")
+                       if(!afterMoveToDetail) viewModel.search("$s")
                     }
                 }
             })
@@ -62,25 +61,29 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 false
             })
         }
-
         subscribeToObservables()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        afterMoveToDetail = false
     }
 
     private fun subscribeToObservables() = with(binding) {
         viewModel.search.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is Resource.Loading -> {
-                    progressBar.visibility = VISIBLE
+                    progressBar.isVisible = true
                     searchAdapter.clearAdapter()
                 }
                 is Resource.Success -> {
-                    progressBar.visibility = GONE
+                    if(state.finishLoading) progressBar.isVisible = false
                     if(!state.data.isNullOrEmpty()) {
                         searchAdapter.addAll(state.data as ArrayList<SearchModel>, true)
                     }
                 }
                 is Resource.Error -> {
-                    progressBar.visibility = GONE
+                    progressBar.isVisible = false
                     context.toast(state.message.ifEmpty { "Error ${state.code}" })
                 }
             }
@@ -88,6 +91,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     }
 
     override fun onSearchListener(binding: ItemSearchBinding, position: Int, data: SearchModel) {
-        findNavController().navigate(R.id.action_search_to_detail)
+        afterMoveToDetail = true
+        findNavController().navigate(SearchFragmentDirections.actionSearchToDetail(data))
     }
 }

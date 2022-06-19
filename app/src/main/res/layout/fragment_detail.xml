@@ -1,14 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.detail.DetailFragment">
 
+    <data>
+        <variable
+            name="viewmodel"
+            type="com.fanulhaq.githubuser.ui.detail.DetailVM"/>
+    </data>
 
-    <FrameLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:id="@+id/layoutHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="16dp"
+                android:visibility="invisible"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_circle_placeholder"
+                    imageCircleUrl="@{viewmodel.dataDetail.avatar}"
+                    tools:ignore="ContentDescription" />
 
-    </FrameLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+                    <TextView
+                        android:id="@+id/tvName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_bold"
+                        android:textSize="18sp"
+                        android:textColor="@android:color/black"
+                        android:text="@{viewmodel.dataDetail.name == null ? `-` : viewmodel.dataDetail.name}"/>
+
+                    <TextView
+                        android:id="@+id/tvUsername"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_regular"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/black"
+                        android:text="@{`@`+viewmodel.dataDetail.username}"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvBio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_regular"
+                android:textSize="14sp"
+                android:layout_marginStart="94dp"
+                android:layout_marginEnd="20dp"
+                android:visibility="invisible"
+                android:textColor="@android:color/black"
+                android:text="@{viewmodel.dataDetail.bio == null ? `-` : viewmodel.dataDetail.bio}"/>
+
+            <LinearLayout
+                android:id="@+id/layoutFollow"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="94dp"
+                android:layout_marginEnd="20dp"
+                android:visibility="invisible"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_group"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/tvFollowers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_bold"
+                    android:textSize="14sp"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/colorTextBlack"
+                    android:text="@{viewmodel.dataDetail.followers}"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textSize="14sp"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/colorTextBlack"
+                    android:text="@string/followers"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textSize="14sp"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/colorTextBlack"
+                    android:text="•"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/tvFollowing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_bold"
+                    android:textSize="14sp"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/colorTextBlack"
+                    android:text="@{viewmodel.dataDetail.following}"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textSize="14sp"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/colorTextBlack"
+                    android:text="@string/following"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutLocation"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="94dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="center_vertical"
+                android:visibility="invisible"
+                tools:ignore="UseCompoundDrawables">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_location"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/tvLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textSize="14sp"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/colorTextBlack"
+                    android:text="@{viewmodel.dataDetail.location == null ? `-` : viewmodel.dataDetail.location}"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutEmail"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="94dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="center_vertical"
+                android:visibility="invisible"
+                tools:ignore="UseCompoundDrawables">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_email"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/tvEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textSize="14sp"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/colorTextBlack"
+                    android:text="@{viewmodel.dataDetail.email == null ? `-` : viewmodel.dataDetail.email}"/>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/viewLine"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:visibility="invisible"
+                android:background="@color/colorBackgroundSearch"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:itemCount="10"
+                android:orientation="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_search"
+                android:overScrollMode="never"/>
+        </LinearLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </layout>

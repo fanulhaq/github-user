@@ -28,6 +28,7 @@ class NetworkConnectionInterceptor(
         val builder =  original.newBuilder()
         builder.apply {
             header("Accept", "application/vnd.github.v3+json")
+            header("Authorization", "token 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")
             method(original.method, original.body)
         }
         return chain.proceed(builder.build())

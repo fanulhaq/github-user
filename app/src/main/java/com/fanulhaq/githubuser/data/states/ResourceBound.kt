@@ -23,7 +23,11 @@ abstract class ResourceBound<RESULT, REQUEST> {
     fun asFlow() = flow {
 
         emit(Resource.loading())
-        emit(Resource.success(fetchFromLocal().first()))
+        emit(
+            Resource.success(
+                fetchFromLocal().first(),
+                false)
+        )
 
         val apiResponse = fetchFromRemote()
         val remoteBody = apiResponse.body()
@@ -37,7 +41,7 @@ abstract class ResourceBound<RESULT, REQUEST> {
 
         emitAll(
             fetchFromLocal().map {
-                Resource.success(it)
+                Resource.success(it, true)
             }
         )
     }.catch { e ->

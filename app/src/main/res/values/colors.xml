@@ -7,4 +7,5 @@
     <color name="colorTextBlack">#333333</color>
     <color name="colorTextGray">#707070</color>
     <color name="colorBackgroundSearch">#F5F5F5</color>
+    <color name="colorLoading">#359B89</color>
 </resources>

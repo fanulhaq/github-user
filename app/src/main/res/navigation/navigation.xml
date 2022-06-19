@@ -23,5 +23,9 @@
         android:id="@+id/detailFragment"
         android:name="com.fanulhaq.githubuser.ui.detail.DetailFragment"
         android:label="DetailFragment"
-        tools:layout="@layout/fragment_detail"/>
+        tools:layout="@layout/fragment_detail">
+        <argument
+            android:name="data"
+            app:argType="com.fanulhaq.githubuser.data.local.search.SearchModel" />
+    </fragment>
 </navigation>
