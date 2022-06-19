@@ -69,7 +69,7 @@ class NetworkModule {
             baseUrl("https://api.github.com/")
             addConverterFactory(GsonConverterFactory.create(gson))
             client(okHttpClient)
-        }.build()
+       }.build()
 
     @Provides
     @Singleton

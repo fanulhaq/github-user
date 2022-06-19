@@ -8,19 +8,16 @@ package com.fanulhaq.githubuser.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
-import okhttp3.Credentials
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
 
 
 class NetworkConnectionInterceptor(
-    context: Context,
-    isAuth: Boolean = false
+    context: Context
 ) : Interceptor {
 
     private val mContext: Context = context
-    private val mIsAuth: Boolean = isAuth
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -29,12 +26,9 @@ class NetworkConnectionInterceptor(
 
         val original = chain.request()
         val builder =  original.newBuilder()
-        if(mIsAuth) {
-            builder.apply {
-                header("Content-Type", "application/json")
-                header("Authorization", Credentials.basic("", ""))
-                method(original.method, original.body)
-            }
+        builder.apply {
+            header("Accept", "application/vnd.github.v3+json")
+            method(original.method, original.body)
         }
         return chain.proceed(builder.build())
     }

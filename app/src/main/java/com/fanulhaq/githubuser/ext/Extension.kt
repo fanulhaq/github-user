@@ -5,14 +5,20 @@
 @file:Suppress("INTEGER_OVERFLOW")
 @file:SuppressLint("SimpleDateFormat")
 
-package com.fanulhaq.githubuser.extensions
+package com.fanulhaq.githubuser.ext
 
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.widget.Toast
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.Duration
 import java.util.*
+
+fun Context?.toast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(this, message, duration).show()
+}
 
 fun Context?.isLoadImageReady() : Boolean {
     return if(this == null) {
