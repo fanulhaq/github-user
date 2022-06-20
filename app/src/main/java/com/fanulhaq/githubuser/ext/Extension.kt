@@ -19,6 +19,8 @@ fun Context?.toast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, message, duration).show()
 }
 
+fun Boolean?.isTrue() = this != null && this
+
 fun Context?.isLoadImageReady() : Boolean {
     return if(this == null) {
         false
@@ -30,13 +32,25 @@ fun Context?.isLoadImageReady() : Boolean {
     }
 }
 
-fun Int.numberShortFormatter() : String {
-    val value = "$this"
+private const val k = 1000L
+private const val m = 1000000L
+private const val b = 1000000000L
+
+fun Long.numberShortFormatter() : String {
     return when(this) {
-        in 0..9999 -> value
-        in 10000..999999 -> "${value.removeRange((value.lastIndex-3), value.lastIndex)}K"
-        in 1000000..999999999 -> "${value.removeRange((value.lastIndex-6), value.lastIndex)}M"
-        else -> "${value.removeRange((value.lastIndex-9), value.lastIndex)}B"
+        in 0..999 -> this.toString()
+        in k..999999 -> {
+            val x = this/k
+            "${x}K"
+        }
+        in m..999999999 -> {
+            val x = this/m
+            "${x}M"
+        }
+        else -> {
+            val x = this/b
+            "${x}B"
+        }
     }
 }
 

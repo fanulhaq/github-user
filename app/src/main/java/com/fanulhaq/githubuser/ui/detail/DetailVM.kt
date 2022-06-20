@@ -19,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -50,13 +51,9 @@ class DetailVM @Inject constructor(
         _dataDetail.value = value
     }
 
-    private lateinit var _repos: Flow<PagingData<ReposModel>>
+    private var _repos: Flow<PagingData<ReposModel>> = flow { PagingData.empty<ReposModel>() }
     val repos: Flow<PagingData<ReposModel>>
         get() = _repos
-
-    init {
-        repos("adamwiggins")
-    }
 
     fun repos(username: String) = launchPagingAsync({
         repository.repos(username).cachedIn(viewModelScope)

@@ -1,6 +1,5 @@
 package com.fanulhaq.githubuser.data.paging
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -12,6 +11,9 @@ import com.fanulhaq.githubuser.data.local.repos.ReposModel
 import com.fanulhaq.githubuser.data.service.GithubApi
 import com.fanulhaq.githubuser.ext.countDateUpdate
 import com.fanulhaq.githubuser.ext.numberShortFormatter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -44,27 +46,25 @@ class ReposMediator(
             }
             if(page == beforePage) page += 1 else beforePage = page
 
-            Log.d("ReposPagingLog", "page: $page -- beforePage $beforePage")
-
             val response = remoteData(page)
             response?.map {
                 it.username = username
-                it.star = it.star?.toInt()?.numberShortFormatter()
+                it.star = it.star?.toLong()?.numberShortFormatter()
                 it.updated_at = it.updated_at?.countDateUpdate()
             }
             val endOfPaginationReached = response?.size ?: 0 < NETWORK_PAGE_SIZE
-
-            Log.d("ReposPagingLog", "page: $page -- DONE $endOfPaginationReached")
 
             db.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     pageKeyDao.deleteWithUsername(username)
                     reposDao.deleteWithUsername(username)
                 }
-                val prevKey = if (page == STARTING_PAGE) null else page - 1
-                val nextKey = if (endOfPaginationReached) null else page + 1
                 val keys = response?.map {
-                    PageKey(it.id, username, prevKey, nextKey)
+                    PageKey(
+                        id = it.id,
+                        username = username,
+                        prev = null /**Only paging forward*/,
+                        next = if(endOfPaginationReached) null else (page+1))
                 }
                 keys?.let { pageKeyDao.insertAll(it) }
                 response?.let { reposDao.insertAll(it) }
@@ -87,10 +87,12 @@ class ReposMediator(
     }
 
     private suspend fun remoteData(page: Int): List<ReposModel>? {
-        val response = service.repos(username = username, page = page)
-        if (response.isSuccessful) {
-            return response.body()
-        } else throw HttpException(response)
+        return withContext(Dispatchers.IO) {
+            val response = async { service.repos(username = username, page = page) }
+            if (response.await().isSuccessful) {
+                response.await().body()
+            } else throw HttpException(response.await())
+        }
     }
 
 }

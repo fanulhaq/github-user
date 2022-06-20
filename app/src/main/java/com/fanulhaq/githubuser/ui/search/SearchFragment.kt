@@ -36,37 +36,10 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
     override fun initViews() {
         super.initViews()
-        with(binding) {
-            recyclerView.adapter = searchAdapter
-            searchAdapter.listener = this@SearchFragment
-            etSearch.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable) {
-                    if(s.isEmpty()) {
-                        searchAdapter.clearAdapter()
-                    } else {
-                       if(!afterMoveToDetail) viewModel.search("$s")
-                    }
-                }
-            })
-
-            etSearch.setOnEditorActionListener(TextView.OnEditorActionListener { _, actionId, _ ->
-                if (actionId == IME_ACTION_SEARCH) {
-                    if (!etSearch.text.isNullOrEmpty()) {
-                        viewModel.search("${etSearch.text}")
-                    }
-                    return@OnEditorActionListener true
-                }
-                false
-            })
-        }
+        binding.recyclerView.adapter = searchAdapter
+        searchAdapter.listener = this
+        initSearch()
         subscribeToObservables()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        afterMoveToDetail = false
     }
 
     private fun subscribeToObservables() = with(binding) {
@@ -88,6 +61,35 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 }
             }
         }
+    }
+
+    private fun initSearch() = with(binding) {
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable) {
+                if(s.isEmpty()) {
+                    searchAdapter.clearAdapter()
+                } else {
+                    if(!afterMoveToDetail) viewModel.search("$s")
+                }
+            }
+        })
+
+        etSearch.setOnEditorActionListener(TextView.OnEditorActionListener { _, actionId, _ ->
+            if (actionId == IME_ACTION_SEARCH) {
+                if (!etSearch.text.isNullOrEmpty()) {
+                    viewModel.search("${etSearch.text}")
+                }
+                return@OnEditorActionListener true
+            }
+            false
+        })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        afterMoveToDetail = false
     }
 
     override fun onSearchListener(binding: ItemSearchBinding, position: Int, data: SearchModel) {

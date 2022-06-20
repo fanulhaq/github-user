@@ -40,8 +40,8 @@ class DetailRepoImpl @Inject constructor(
                     if(!company.isNullOrEmpty()) bio = "$company ${
                         if(!bio.isNullOrEmpty()) ", $bio" else ""
                     }"
-                    followers = followers?.toInt()?.numberShortFormatter()
-                    following = following?.toInt()?.numberShortFormatter()
+                    followers = followers?.toLong()?.numberShortFormatter()
+                    following = following?.toLong()?.numberShortFormatter()
                 }
                 detailDao.insert(response)
             }

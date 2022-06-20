@@ -4,7 +4,6 @@
 
 package com.fanulhaq.githubuser.ui.detail
 
-import android.util.Log
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -13,6 +12,7 @@ import androidx.paging.LoadState
 import com.fanulhaq.githubuser.R
 import com.fanulhaq.githubuser.data.states.Resource
 import com.fanulhaq.githubuser.databinding.FragmentDetailBinding
+import com.fanulhaq.githubuser.ext.isTrue
 import com.fanulhaq.githubuser.ext.toast
 import com.fanulhaq.githubuser.ui.base.BaseFragment
 import com.fanulhaq.githubuser.ui.detail.adapter.ReposAdapter
@@ -21,7 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import javax.inject.Inject
 
@@ -45,9 +45,6 @@ class DetailFragment : BaseFragment<FragmentDetailBinding>(R.layout.fragment_det
             swipeRefresh.setOnRefreshListener {
                 viewModel.detail(args.data.username)
                 reposAdapter.refresh()
-            }
-            imageView.setOnClickListener {
-                Log.d("ReposPagingLog", "${args.data.username} == ${reposAdapter.itemCount}")
             }
         }
         subscribeToObservables()
@@ -93,11 +90,18 @@ class DetailFragment : BaseFragment<FragmentDetailBinding>(R.layout.fragment_det
                 }
             }
             launchOnLifecycleScope {
-                reposAdapter.loadStateFlow.distinctUntilChangedBy { it.refresh }
-                    .filter { it.refresh is LoadState.NotLoading }
+                reposAdapter.loadStateFlow
+                    .distinctUntilChanged { old, new ->
+                        old.mediator?.prepend?.endOfPaginationReached.isTrue() ==
+                                new.mediator?.prepend?.endOfPaginationReached.isTrue()
+                    }
+                    .filter {
+                        it.refresh is LoadState.NotLoading && it.prepend.endOfPaginationReached
+                                && !it.append.endOfPaginationReached
+                    }
                     .collect { recyclerView.scrollToPosition(0) }
             }
-//            viewModel.repos(args.data.username)
+            viewModel.repos(args.data.username)
         }
     }
 
