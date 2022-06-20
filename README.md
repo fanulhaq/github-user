@@ -1,7 +1,8 @@
 # Github-User
 
 
-- 100% [Kotlin](https://kotlinlang.org/) based + [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) + [Flow](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/).
+- 100% [Kotlin](https://kotlinlang.org/) Based 
+- [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) + [Flow](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/).
 - Architecture
   - MVVM Architecture (Model - View - ViewModel - Model)
   - Repository Pattern
