@@ -22,7 +22,7 @@
 
 
 ## Module Dependency Injection
-Disini kami akan membuat 3 Module diantaranya *NetworkModule, DBModule & RepositoryModule*.
+Disini kita akan membuat 3 Module diantaranya *NetworkModule, DBModule & RepositoryModule*.
 
 1. *NewtworkModule* berisi sesuatu yang berhubungan dengan Service/Network.
 ```
@@ -121,7 +121,7 @@ class App: Application() {
 1. Antarmuka terdiri dari Fragment *SearchFragment* dan file tata letaknya *fragment_search.xml*.
 2. Untuk berinteraksi dengan antarmuka memerlukan model data yang menyimpan elemen data *List<SearchModel>* dan *State*.
 
-Kami akan menggunakan *SearchVM* (ViewModel) untuk menyimpan informasi tersebut.
+Pada project ini kita akan menggunakan *SearchVM* (ViewModel) untuk menyimpan informasi/data.
 
 ```
 @HiltViewModel
@@ -152,6 +152,54 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 ```
   
 Sekarang setelah kita memiliki *SearchVM* dan *SearchFragment*, bagaimana cara menghubungkannya?, untuk mendapatkan data di kelas *SearchVM*, kita memerlukan cara untuk memberi tahu antarmuka. Pada saat ini kita memerlukan anggota JetPack lainnya yaitu *LiveData*.  
+
+*LiveData* adalah penyimpanan data yang dapat diamati. Komponen lain dalam aplikasi dapat menggunakan penyimpanan ini untuk memantau perubahan pada objek tanpa membuat jalur ketergantungan yang eksplisit dan rumit di antara mereka. Komponen LiveData juga mengikuti status siklus hidup komponen aplikasi seperti Aktivitas, Fragmen, dan Service, serta menyertakan logika pembersihan untuk mencegah kebocoran objek dan konsumsi memori yang berlebihan.
+Saat ini kita sudah menggunakan *LiveData<Resource<List<SearchModel>>>* di *SearchVM*. *SearchFragment* sekarang diberi tahu saat data diperbarui. Selain itu, karena *LiveData* ini sadar akan siklus hidup, referensi secara otomatis dibersihkan saat tidak lagi diperlukan.
+
+Sekarang, kita berada di *SearchFragment* untuk mengamati data dan memperbarui antarmuka:
+
+```
+@ExperimentalCoroutinesApi
+@AndroidEntryPoint
+class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search), 
+  OnSearchListener {
+    ...
+    private val viewModel: SearchVM by viewModels()
+  
+    private fun subscribeToObservables() = with(binding) {
+        viewModel.search.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is Resource.Loading -> {
+                    progressBar.isVisible = true
+                    searchAdapter.clearAdapter()
+                }
+                is Resource.Success -> {
+                    if(state.finishLoading) progressBar.isVisible = false
+                    if(!state.data.isNullOrEmpty()) {
+                        searchAdapter.addAll(state.data as ArrayList<SearchModel>, true)
+                    }
+                }
+                is Resource.Error -> {
+                    progressBar.isVisible = false
+                    context.toast(state.message.ifEmpty { "Error ${state.code}" })
+                }
+            }
+        }
+    }
+    ...
+}
+```
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
