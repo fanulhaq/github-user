@@ -73,7 +73,7 @@ class DBModule {
 }
 ```
 
-3. *RepositoryModule* untuk inject semua repositori yang kami gunakan.
+3. *RepositoryModule* untuk inject semua repositori yang akan kita gunakan.
 ```
 @ExperimentalCoroutinesApi
 @InstallIn(SingletonComponent::class)
