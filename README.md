@@ -379,24 +379,131 @@ class SearchVM @Inject constructor(
 }
 ```  
   
+*SearchFragemnt* memperbarui UI dengan mengamati LiveData<Resource<List<SearchModel>>> di *SearchVM* dan memuat data dengan memanggil *search()*.
+
+Diatas adalah contoh kecil untuk mendapatkan data pada project ini.  
   
+## Paging  
+Paging adalah komponen yang ditetapkan oleh Google untuk memudahkan pengembang menyelesaikan pemuatan paging. Paging mendukung tiga jenis skema, yaitu data Network, Database, data Naringan + Database.
+
+Pada project ini menggunakan Paging3 karena dapat mendeteksi status daftar data secara realtime, dan juga menyediakan mekanisme refresh dan retry, dll.
+
+Selanjutnya, mengambil daftar data repositori user pada Fragment *DetailFragment*. Sebagai contoh untuk menggambarkan implementasi Paging.
+Pertama adapter PagingDataAdapter, kita perlu inherit PagingDataAdapter pada kelas adapter kita. Seperti pada *ReposAdapter*.  
   
+```  
+class ReposAdapter @Inject constructor() : PagingDataAdapter<ReposModel, ReposAdapter.ViewHolder>(ReposComparator) {
+    ...
+    object ReposComparator : DiffUtil.ItemCallback<ReposModel>() {
+        override fun areItemsTheSame(oldItem: ReposModel, newItem: ReposModel) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: ReposModel, newItem: ReposModel) = oldItem == newItem
+    }
+    ...
+}
+```
   
+Pada project ini, menerapkan paging pemuatan data Network + Database, kita perlu menggunakan kelas RemoteMediator di Paging3. Sebagai referensi, mari kita lihat kelas *ReposMediator*. 
   
+```  
+@ExperimentalPagingApi
+class ReposMediator(
+    private val service: GithubApi,
+    private val db: RoomDB,
+    private val username: String
+) : RemoteMediator<Int, ReposModel>() {
+
+    private val reposDao = db.reposDao()
+    private val pageKeyDao = db.pageKeyDao()
+
+    override suspend fun load(
+        loadType: LoadType,
+        state: PagingState<Int, ReposModel>
+    ): MediatorResult {
+        return try {
+            var page = when (loadType) {
+                LoadType.REFRESH -> STARTING_PAGE
+                LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
+                LoadType.APPEND -> {
+                    getRemoteKey(state)?.next ?: return MediatorResult.Success(endOfPaginationReached = true)
+                }
+            }
+
+            val response = remoteData(page)
+            response?.map {
+                it.username = username
+                it.star = it.star?.toLong()?.numberShortFormatter()
+                it.updated_at = it.updated_at?.countDateUpdate()
+            }
+            val endOfPaginationReached = response?.size ?: 0 < NETWORK_PAGE_SIZE
+
+            db.withTransaction {
+                if (loadType == LoadType.REFRESH) {
+                    pageKeyDao.deleteWithUsername(username)
+                    reposDao.deleteWithUsername(username)
+                }
+                val keys = response?.map {
+                    PageKey(
+                        id = it.id,
+                        username = username,
+                        prev = null /**Only paging forward*/,
+                        next = if(endOfPaginationReached) null else (page+1))
+                }
+                keys?.let { pageKeyDao.insertAll(it) }
+                response?.let { reposDao.insertAll(it) }
+            }
+            return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
+        } catch (e: IOException) {
+            MediatorResult.Error(e)
+        } catch (e: HttpException) {
+            MediatorResult.Error(e)
+        }
+    }
+
+    private suspend fun getRemoteKey(state: PagingState<Int, ReposModel>) : PageKey? {
+        val lastItem = state.lastItemOrNull()
+        return db.withTransaction {
+            if(lastItem?.id != null) {
+                pageKeyDao.getRemoteKeyWithUsername(lastItem.id, username)
+            } else pageKeyDao.getLastRemoteKeyWithUsername(username)
+        }
+    }
+
+    private suspend fun remoteData(page: Int): List<ReposModel>? {
+        return withContext(Dispatchers.IO) {
+            val response = async { service.repos(username = username, page = page) }
+            if (response.await().isSuccessful) {
+                response.await().body()
+            } else throw HttpException(response.await())
+        }
+    }
+
+}  
+```  
   
+Diatas adalah operasi sederhana dari paging pemuatan data database dan network di *ReposMediator*. Kita bisa mendapatkan status melalui LoadType (REFRESH, PREPEND, APPEND). Fungsinya adalah jika database tidak kosong, paging juga dapat menampilkan data saat offline. Jika kosong dan offline, akan ditampilkan pesan kesalahan. Kemudian jika online, akan mendapatkan data dari network, setelah berhasil. Kemudian menghapus database lokal dan masukkan data terbaru. Disini, terdapat tabel database yang digunakan untuk menyimpan nomor *(PageKey)* halaman yang dimuat (Only paging forward).
+
+
+Kemudian panggil juga di *DetailRepoImpl* sebagai berikut.
+
+```
+@ExperimentalCoroutinesApi
+@ExperimentalPagingApi
+class DetailRepoImpl @Inject constructor(
+    private val githubApi: GithubApi,
+    private val reposDao: ReposDao,
+    private var db: RoomDB
+) : DetailRepo {
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+    override suspend fun repos(username: String): Flow<PagingData<ReposModel>> = Pager(
+        config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, prefetchDistance = 2*NETWORK_PAGE_SIZE),
+        remoteMediator = ReposMediator(githubApi, db, username)
+    ) {
+        reposDao.pagingSourceWithUsername(username)
+    }.flow
+}
+```
+
+
+*Give Feedback* 👍
+
+
