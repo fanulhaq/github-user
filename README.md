@@ -86,18 +86,15 @@ abstract class RepositoryModule {
 }
 ```
 
-Sekarang kita memiliki 3 module yang diperlukan, setalah itu ayo kita pergi menuju kelas *App* dan *AndroidManifest*. Kita akan melakukan hal penting agar Dependency Injection kita tidak mengalami masalah.
+Sekarang kita memiliki 3 module yang diperlukan, setalah itu ayo kita pergi menuju kelas *App* dan *AndroidManifest*. Kita akan melakukan hal sederhana untuk mengaktifkan injeksi.
 
 *App*
 ```
 @HiltAndroidApp
-class App: Application() {
-    ...
-    ...
-}
+class App: Application()
 ```
 
-*AndroidManifest* tambahkan baris android:name=".App"
+*AndroidManifest* tambahkan -> *android:name=".App"*
 ```
 ...
 <application
@@ -259,7 +256,7 @@ abstract class RoomDB: RoomDatabase() {
 ```
 
 ## Data Collection
-Sekarang kita telah menghubungkan *SearchVM* ke *SearchFragment* menggunakan LiveData, bagaimana kita mendapatkan data?
+Sekarang kita telah menghubungkan *SearchVM* ke *SearchFragment* menggunakan LiveData dan sudah memiliki database, bagaimana kita mendapatkan data?
 
 Dalam project ini menggunakan Retrofit
   
@@ -272,9 +269,9 @@ interface GithubApi {
 }
 ```
 
-Ide pertama untuk mengimplementasikan ViewModel mungkin dengan memanggil *GithubApi* secara langsung untuk mendapatkan data dan kemudian menetapkan data tersebut ke objek LiveData. Desain ini berfungsi, tetapi dengan desain ini seiring berkembangnya aplikasi, aplikasi menjadi semakin sulit untuk dipelihara. Ini akan menempatkan terlalu banyak tanggung jawab pada kelas *SearchVM*, yang akan melanggar prinsip pemisahan masalah.
+Ide pertama untuk mengimplementasikan ViewModel, mungkin dengan memanggil *GithubApi* secara langsung untuk mendapatkan data dan kemudian menetapkan data tersebut ke objek LiveData. Desain ini berfungsi, tetapi dengan desain ini seiring berkembangnya aplikasi, aplikasi menjadi semakin sulit untuk dipelihara. Ini akan menempatkan terlalu banyak tanggung jawab pada kelas *SearchVM*, yang akan melanggar prinsip pemisahan masalah.
 
-*SearchVM* akan mendelegasikan proses pengambilan data ke modul lain. Jadi, sekarang kita membuat kelas Repository yang terdiri dari *SearchRepo* dan *SearchRepoImpl*. 
+*SearchVM* akan mendelegasikan proses pengambilan data ke modul lain. Jadi, sekarang kita membuat kelas repositori yang terdiri dari *SearchRepo* dan *SearchRepoImpl*. 
   
 ```
 interface SearchRepo {
@@ -299,7 +296,7 @@ class SearchRepoImpl @Inject constructor(
 }
 ```
 
-Pada *SearchRepoImpl* terdapat abstract class *ResourceBound*, itu digunakan untuk memperbarui state dan mengontrol aliran data yang kita ambil. *SearchRepoImpl* merupakan sebuah repositori yang menyediakan sumber daya dari database lokal serta remote endpoint.
+Pada *SearchRepoImpl* terdapat abstract class *ResourceBound*, digunakan untuk memperbarui state dan mengontrol aliran data yang kita ambil. *SearchRepoImpl* merupakan sebuah repositori yang menyediakan sumber data dari database lokal serta remote endpoint.
 Mari lihat *ResourceBound*.
 
 ```
@@ -379,7 +376,7 @@ class SearchVM @Inject constructor(
 }
 ```  
   
-*SearchFragemnt* memperbarui UI dengan mengamati LiveData<Resource<List<SearchModel>>> di *SearchVM* dan memuat data dengan memanggil *search()*.
+*SearchFragment* memperbarui UI dengan mengamati LiveData<Resource<List<SearchModel>>> di *SearchVM* dan memuat data dengan memanggil *search()*.
 
 Diatas adalah contoh kecil untuk mendapatkan data pada project ini.  
   
@@ -480,7 +477,7 @@ class ReposMediator(
 }  
 ```  
   
-Diatas adalah operasi sederhana dari paging pemuatan data database dan network di *ReposMediator*. Kita bisa mendapatkan status melalui LoadType (REFRESH, PREPEND, APPEND). Fungsinya adalah jika database tidak kosong, paging juga dapat menampilkan data saat offline. Jika kosong dan offline, akan ditampilkan pesan kesalahan. Kemudian jika online, akan mendapatkan data dari network, setelah berhasil. Kemudian menghapus database lokal dan masukkan data terbaru. Disini, terdapat tabel database yang digunakan untuk menyimpan nomor *(PageKey)* halaman yang dimuat (Only paging forward).
+Diatas adalah operasi sederhana dari paging pemuatan data Network + Database di *ReposMediator*. Kita bisa mendapatkan status melalui LoadType (REFRESH, PREPEND, APPEND). Fungsinya adalah jika database tidak kosong, paging juga dapat menampilkan data saat offline. Jika kosong dan offline, akan ditampilkan pesan kesalahan. Kemudian jika online, akan mendapatkan data dari network, setelah berhasil. Kemudian menghapus database lokal dan masukkan data terbaru. Disini, terdapat tabel database yang digunakan untuk menyimpan nomor *(PageKey)* halaman yang dimuat (Only paging forward).
 
 
 Kemudian panggil juga di *DetailRepoImpl* sebagai berikut.
@@ -504,6 +501,6 @@ class DetailRepoImpl @Inject constructor(
 ```
 
 
-*Give Feedback* 👍
+*Give Feedback* 😉
 
 
