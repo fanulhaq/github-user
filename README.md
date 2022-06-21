@@ -116,6 +116,13 @@ class App: Application() {
 ...
 ```
 
+Setelah kita mengaktifkan injeksi, kita dapat mulai mengaktifkan injeksi anggota di kelas Android yang lain menggunakan anotasi *@AndroidEntryPoint*. Kita dapat menggunakan *@AndroidEntryPoint* pada jenis berikut:
+1. Activity
+2. Fragment
+3. View
+4. Service
+5. BroadcastReceiver
+Sedangkan untuk ViewModel dapat menggunakan *@HiltViewModel*.
 
 ## Build Interface
 1. Antarmuka terdiri dari Fragment *SearchFragment* dan file tata letaknya *fragment_search.xml*.
@@ -125,10 +132,7 @@ Pada project ini kita akan menggunakan *SearchVM* (ViewModel) untuk menyimpan in
 
 ```
 @HiltViewModel
-@ExperimentalCoroutinesApi
-class SearchVM @Inject constructor(
-    private val repository: SearchRepoImpl
-): BaseViewModel() {
+class SearchVM @Inject constructor(): BaseViewModel() {
     ...
     private var _search = MutableLiveData<Resource<List<SearchModel>>>()
     val search: LiveData<Resource<List<SearchModel>>>
@@ -158,10 +162,8 @@ sealed class Resource<T> {
 Kemudian lihat *SearchFragment*
   
 ```
-@ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search), 
-  OnSearchListener {
+class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search) {
     ...
     private val viewModel: SearchVM by viewModels()
     ...
@@ -178,8 +180,7 @@ Sekarang, kita berada di *SearchFragment* untuk mengamati data dan memperbarui a
 ```
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search), 
-  OnSearchListener {
+class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search) {
     ...
     private val viewModel: SearchVM by viewModels()
   
@@ -207,7 +208,59 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 }
 ```
 
+## Data Collection
+Sekarang kita telah menghubungkan *SearchVM* ke *SearchFragment* menggunakan LiveData, bagaimana kita mendapatkan data?
 
+Dalam project ini menggunakan Retrofit
+  
+```
+interface GithubApi {
+    ...
+    @GET("search/users")
+    suspend fun search(@Query("q") q: String): Response<SearchResponse<SearchModel>>
+    ...
+}
+```
+
+Ide pertama untuk mengimplementasikan ViewModel mungkin dengan memanggil *GithubApi* secara langsung untuk mendapatkan data dan kemudian menetapkan data tersebut ke objek LiveData. Desain ini berfungsi, tetapi dengan desain ini seiring berkembangnya aplikasi, aplikasi menjadi semakin sulit untuk dipelihara. Ini akan menempatkan terlalu banyak tanggung jawab pada kelas *SearchVM*, yang akan melanggar prinsip pemisahan masalah.
+
+*SearchVM* akan mendelegasikan proses pengambilan data ke modul lain. Jadi, sekarang kita membuat kelas Repository yang terdiri dari *SearchRepo* dan *SearchRepoImpl*. 
+  
+```
+interface SearchRepo {
+    suspend fun search(q: String) : Flow<Resource<List<SearchModel>>>
+}
+```
+  
+```
+@ExperimentalCoroutinesApi
+class SearchRepoImpl @Inject constructor(
+    private val githubApi: GithubApi,
+    private val searchDao: SearchDao
+) : SearchRepo {
+    override suspend fun search(q: String): Flow<Resource<List<SearchModel>>> {
+        return object : ResourceBound<List<SearchModel>, SearchResponse<SearchModel>>() {
+            override suspend fun saveRemoteData(response: SearchResponse<SearchModel>) = response.items?.let { searchDao.insertAll(it) }
+            override suspend fun fetchFromRemote(): Response<SearchResponse<SearchModel>> = githubApi.search(q = q)
+            override suspend fun deleteData() = searchDao.deleteWithKey(q)
+            override fun fetchFromLocal(): Flow<List<SearchModel>> = searchDao.getDataWithKey(q)
+        }.asFlow()
+    }
+}
+```
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
