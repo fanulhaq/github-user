@@ -21,7 +21,100 @@
 - [Glide](https://github.com/bumptech/glide) - Loading images
 
 
-## Dependency Injection
+## Module Dependency Injection
+Disini kami akan membuat 3 Module diantaranya *NetworkModule, DBModule & RepositoryModule*.
+
+1. *NewtworkModule* berisi sesuatu yang berhubungan dengan Service/Network.
+```
+@InstallIn(SingletonComponent::class)
+@Module
+class NetworkModule {
+    ...
+    @Provides
+    @Singleton
+    @Named("RetrofitGithub")
+    fun provideRetrofitGithub(
+        gson: Gson,
+        @Named("OkHttpClient") okHttpClient: OkHttpClient
+    ): Retrofit = Retrofit.Builder().apply {
+            baseUrl("...")
+            addConverterFactory(GsonConverterFactory.create(gson))
+            client(okHttpClient)
+       }.build()
+
+    @Provides
+    @Singleton
+    fun provideGithubApi(@Named("RetrofitGithub") retrofit: Retrofit):
+            GithubApi = retrofit.create(GithubApi::class.java)
+    ....
+}
+```
+
+2. *DBModule* untuk inject dababase.
+```
+@InstallIn(SingletonComponent::class)
+@Module
+class DBModule {
+    ...
+    @Singleton
+    @Provides
+    fun provideDatabase(application: Application) = Room.databaseBuilder(
+        application,
+        RoomDB::class.java,
+        "..."
+    )
+    .fallbackToDestructiveMigration()
+    .build()
+
+    @Singleton
+    @Provides
+    fun provideSearchDao(db: RoomDB) = db.searchDao()
+    ...
+}
+```
+
+3. *RepositoryModule* untuk inject semua repositori yang kami gunakan.
+```
+@ExperimentalCoroutinesApi
+@InstallIn(SingletonComponent::class)
+@Module
+abstract class RepositoryModule {
+    ...
+    @Binds
+    abstract fun bindSearchRepository(searchRepoImpl: SearchRepoImpl): SearchRepo
+    ...
+}
+```
+
+Sekarang kita memiliki 3 module yang diperlukan, setalah itu ayo kita pergi menuju kelas *App* dan *AndroidManifest*. Kita akan melakukan hal penting agar Dependency Injection kita tidak mengalami masalah.
+
+*App*
+```
+@HiltAndroidApp
+class App: Application() {
+    ...
+    ...
+}
+```
+
+*AndroidManifest* tambahkan baris android:name=".App"
+```
+...
+<application
+      android:name=".App"
+      android:allowBackup="true"
+      android:icon="@mipmap/ic_launcher"
+      android:label="@string/app_name"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:supportsRtl="true"
+      android:usesCleartextTraffic="true"
+      android:theme="@style/Theme.GithubUser"
+      tools:ignore="UnusedAttribute">
+      ...
+      ...
+</application>
+...
+```
 
 
 ## Build Interface
