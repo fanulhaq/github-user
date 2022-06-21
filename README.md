@@ -143,7 +143,7 @@ class SearchVM @Inject constructor(): BaseViewModel() {
 }
 ```
 
-Pada *SearchVM* kita melihat *Resource*, kelas tersebut digunakan untuk memberitahu dan atau menyimpan state yang berjalan.
+Pada *SearchVM* kita melihat *Resource*, kelas tersebut digunakan untuk memberitahu state yang sedang dan atau sudah dijalankan.
 
 ```
 sealed class Resource<T> {
@@ -213,7 +213,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
 
 Saat ini, ada banyak cara untuk mengimplementasikan caching, seperti OkHttp CacheControl atau RxCache, tetapi dalam proyek ini, kita akan menggunakan database, anggota JetPack lainnya, *Room*.
 
-Untuk menggunakan Room, kita perlu mendefinisikan skema lokal. Pertama, kita tambahkan anotasi *@Entity* ke kelas model data *SearchModel* dan anotasi *@PrimaryKey* ke bidang id kelas. Anotasi ini akan menandai *SearchModel* sebagai tabel di database dan id sebagai kunci utama untuk tabel itu:
+Untuk menggunakan Room, kita perlu mendefinisikan skema lokal. Pertama, kita tambahkan anotasi *@Entity* ke kelas model data *SearchModel* dan anotasi *@PrimaryKey* ke bidang id kelas. Anotasi ini akan menandai *SearchModel* sebagai tabel di database dan id sebagai Primary Key untuk tabel tersebut:
 
 ```
 @Entity(tableName = "search")
@@ -258,13 +258,6 @@ abstract class RoomDB: RoomDatabase() {
 }
 ```
 
-
-
-
-
-
-
-
 ## Data Collection
 Sekarang kita telah menghubungkan *SearchVM* ke *SearchFragment* menggunakan LiveData, bagaimana kita mendapatkan data?
 
@@ -305,12 +298,86 @@ class SearchRepoImpl @Inject constructor(
     }
 }
 ```
+
+Pada *SearchRepoImpl* terdapat abstract class *ResourceBound*, itu digunakan untuk memperbarui state dan mengontrol aliran data yang kita ambil. *SearchRepoImpl* merupakan sebuah repositori yang menyediakan sumber daya dari database lokal serta remote endpoint.
+Mari lihat *ResourceBound*.
+
+```
+@ExperimentalCoroutinesApi
+abstract class ResourceBound<RESULT, REQUEST> {
+
+    fun asFlow() = flow {
+
+        emit(Resource.loading())
+        emit(
+            Resource.success(
+                fetchFromLocal().first(),
+                false)
+        )
+
+        val apiResponse = fetchFromRemote()
+        val remoteBody = apiResponse.body()
+
+        if(apiResponse.isSuccessful && remoteBody != null) {
+            deleteData()
+            saveRemoteData(remoteBody)
+        } else {
+            emit(Resource.error(apiResponse.message(), apiResponse.code()))
+        }
+
+        emitAll(
+            fetchFromLocal().map {
+                Resource.success(it, true)
+            }
+        )
+    }.catch { e ->
+        emit(Resource.error(e.message ?: "Unknown Error", -1))
+        e.printStackTrace()
+    }
+
+
+    @WorkerThread
+    protected abstract suspend fun deleteData()
+
+    @WorkerThread
+    protected abstract suspend fun saveRemoteData(response: REQUEST): Unit?
+
+    @MainThread
+    protected abstract fun fetchFromLocal(): Flow<RESULT>
+
+    @MainThread
+    protected abstract suspend fun fetchFromRemote(): Response<REQUEST>
+}
+```
+
+*RESULT* mewakili model data dari database dan *REQUEST* mewakili model data response dari service/network.
+
+Meskipun modul repositori mungkin tampak tidak perlu, ia memiliki tujuan penting: ia menarik sumber data dari aplikasi lainnya.  
+Sekarang, *SearchVM* tidak tahu cara mendapatkan data, jadi kita dapat menyediakan model tampilan dengan data yang diperoleh dari beberapa implementasi pengambilan data yang berbeda.
+ 
+## Connecting ViewModel to Repository
+Mari kembali ke *SearchVM*.  
   
-  
-  
-  
-  
-  
+```  
+@HiltViewModel
+@ExperimentalCoroutinesApi
+class SearchVM @Inject constructor(
+    private val repository: SearchRepoImpl
+): BaseViewModel() {
+
+    private var _search = MutableLiveData<Resource<List<SearchModel>>>()
+    val search: LiveData<Resource<List<SearchModel>>>
+        get() = _search
+
+    fun search(q: String) {
+        viewModelScope.launch {
+            repository.search(q).collect {
+                _search.postValue(it)
+            }
+        }
+    }
+}
+```  
   
   
   
