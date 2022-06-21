@@ -14,7 +14,7 @@
   - [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel) - UI related data holder, lifecycle aware
   - [Room](https://developer.android.com/topic/libraries/architecture/room) Persistence - Construct database
   - [Paging3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) - Display data on recycleView
-  - [Navigation](https://developer.android.com/guide/navigation) + SafeArgs - Support for one Activity 
+  - [Navigation Component](https://developer.android.com/guide/navigation) - Support for single Activity 
 - Material Design
 - [Retrofit2 & Gson](https://github.com/square/retrofit) - Constructing the REST API
 - [OkHttp3](https://github.com/square/okhttp) - Implementing interceptor, logging and mocking web server
@@ -25,3 +25,43 @@
 
 
 ## Build Interface
+1. Antarmuka terdiri dari Fragment *SearchFragment* dan file tata letaknya *fragment_search.xml*.
+2. Untuk berinteraksi dengan antarmuka memerlukan model data yang menyimpan elemen data *List<SearchModel>* dan *State*.
+
+Kami akan menggunakan *SearchVM* (ViewModel) untuk menyimpan informasi tersebut.
+
+```
+@HiltViewModel
+@ExperimentalCoroutinesApi
+class SearchVM @Inject constructor(
+    private val repository: SearchRepoImpl
+): BaseViewModel() {
+    ...
+    private var _search = MutableLiveData<Resource<List<SearchModel>>>()
+    val search: LiveData<Resource<List<SearchModel>>>
+        get() = _search
+
+    ...
+}
+```
+
+Kemudian lihat *SearchFragment*
+  
+```
+@ExperimentalCoroutinesApi
+@AndroidEntryPoint
+class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_search), 
+  OnSearchListener {
+    ...
+    private val viewModel: SearchVM by viewModels()
+    ...
+}
+```
+  
+Sekarang setelah kita memiliki *SearchVM* dan *SearchFragment*, bagaimana cara menghubungkannya?, untuk mendapatkan data di kelas *SearchVM*, kita memerlukan cara untuk memberi tahu antarmuka. Pada saat ini kita memerlukan anggota JetPack lainnya yaitu *LiveData*.  
+  
+  
+  
+  
+  
+  
