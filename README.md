@@ -122,6 +122,7 @@ Setelah kita mengaktifkan injeksi, kita dapat mulai mengaktifkan injeksi anggota
 3. View
 4. Service
 5. BroadcastReceiver
+
 Sedangkan untuk ViewModel dapat menggunakan *@HiltViewModel*.
 
 ## Build Interface
@@ -207,6 +208,62 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
     ...
 }
 ```
+
+## Cache & Retain Data
+
+Saat ini, ada banyak cara untuk mengimplementasikan caching, seperti OkHttp CacheControl atau RxCache, tetapi dalam proyek ini, kita akan menggunakan database, anggota JetPack lainnya, *Room*.
+
+Untuk menggunakan Room, kita perlu mendefinisikan skema lokal. Pertama, kita tambahkan anotasi *@Entity* ke kelas model data *SearchModel* dan anotasi *@PrimaryKey* ke bidang id kelas. Anotasi ini akan menandai *SearchModel* sebagai tabel di database dan id sebagai kunci utama untuk tabel itu:
+
+```
+@Entity(tableName = "search")
+data class SearchModel (
+    @PrimaryKey 
+    val id: Int,
+    val username: String,
+    val avatar: String,
+    val url: String
+)
+```
+
+Kemudian, kita membuat kelas database dengan mengimplementasikan RoomDatabase untuk aplikasi:
+
+```
+@Database(entities = [SearchModel::class], version = 1)
+abstract class RoomDB: RoomDatabase()
+```
+
+Sekarang, kita membutuhkan cara untuk melakukan Create, Read, Update, dan Delete (CRUD) pada database. Untuk mencapai ini, kita akan membuat Data Access Object (DAO).
+
+```
+@Dao
+interface SearchDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(data: List<SearchModel>)
+
+    @Query("SELECT * FROM search WHERE username LIKE '%' || :key || '%' LIMIT 30")
+    fun getDataWithKey(key: String): Flow<List<SearchModel>>
+
+    @Query("DELETE FROM search WHERE username LIKE '%' || :key || '%'")
+    suspend fun deleteWithKey(key: String)
+}
+```
+
+Setelah mendefinisikan kelas *SearchDao*, referensikan DAO dari kelas database:
+
+```
+@Database(entities = [SearchModel::class], version = 1)
+abstract class RoomDB: RoomDatabase() {
+  abstract fun searchDao(): SearchDao
+}
+```
+
+
+
+
+
+
+
 
 ## Data Collection
 Sekarang kita telah menghubungkan *SearchVM* ke *SearchFragment* menggunakan LiveData, bagaimana kita mendapatkan data?
