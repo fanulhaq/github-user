@@ -170,7 +170,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
   
 Sekarang setelah kita memiliki *SearchVM* dan *SearchFragment*, bagaimana cara menghubungkannya?, untuk mendapatkan data di kelas *SearchVM*, kita memerlukan cara untuk memberi tahu antarmuka. Pada saat ini kita memerlukan anggota JetPack lainnya yaitu *LiveData*.  
 
-*LiveData* adalah penyimpanan data yang dapat diamati. Komponen lain dalam aplikasi dapat menggunakan penyimpanan ini untuk memantau perubahan pada objek tanpa membuat jalur ketergantungan yang eksplisit dan rumit di antara mereka. Komponen LiveData juga mengikuti status siklus hidup komponen aplikasi seperti Aktivitas, Fragmen, dan Service, serta menyertakan logika pembersihan untuk mencegah kebocoran objek dan konsumsi memori yang berlebihan.
+*LiveData* adalah penyimpanan data yang dapat diamati. Komponen lain dalam aplikasi dapat menggunakan penyimpanan ini untuk memantau perubahan pada objek tanpa membuat jalur ketergantungan yang eksplisit dan rumit di antara mereka. Komponen LiveData juga mengikuti status siklus hidup komponen aplikasi seperti Activity, Fragment, dan Service, serta menyertakan logika pembersihan untuk mencegah kebocoran objek dan konsumsi memori yang berlebihan.
 Saat ini kita sudah menggunakan *LiveData<Resource<List<SearchModel>>>* di *SearchVM*. *SearchFragment* sekarang diberi tahu saat data diperbarui. Selain itu, karena *LiveData* ini sadar akan siklus hidup, referensi secara otomatis dibersihkan saat tidak lagi diperlukan.
 
 Sekarang, kita berada di *SearchFragment* untuk mengamati data dan memperbarui antarmuka:
