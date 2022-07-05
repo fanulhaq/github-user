@@ -39,10 +39,10 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
         binding.recyclerView.adapter = searchAdapter
         searchAdapter.listener = this
         initSearch()
-        subscribeToObservables()
     }
 
-    private fun subscribeToObservables() = with(binding) {
+    override fun subscribeToObservables() = with(binding) {
+        super.subscribeToObservables()
         viewModel.search.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is Resource.Loading -> {

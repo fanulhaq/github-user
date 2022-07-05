@@ -31,10 +31,15 @@ abstract class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initViews()
+        subscribeToObservables()
     }
 
     @CallSuper
     protected open fun initViews() {
+
+    }
+
+    protected open fun subscribeToObservables() {
 
     }
 

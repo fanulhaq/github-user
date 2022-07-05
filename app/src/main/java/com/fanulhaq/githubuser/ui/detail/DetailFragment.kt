@@ -47,10 +47,10 @@ class DetailFragment : BaseFragment<FragmentDetailBinding>(R.layout.fragment_det
                 reposAdapter.refresh()
             }
         }
-        subscribeToObservables()
     }
 
-    private fun subscribeToObservables() {
+    override fun subscribeToObservables() {
+        super.subscribeToObservables()
         with(binding) {
             viewModel.detail.observe(viewLifecycleOwner) { state ->
                 when (state) {
