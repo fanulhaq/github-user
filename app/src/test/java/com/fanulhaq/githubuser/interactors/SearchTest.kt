@@ -13,7 +13,6 @@ import com.fanulhaq.githubuser.response.SearchResponse.successData
 import com.fanulhaq.githubuser.response.SearchResponse.successDataKey
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer

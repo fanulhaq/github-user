@@ -19,7 +19,6 @@ import com.fanulhaq.githubuser.ui.detail.adapter.ReposAdapter
 import com.fanulhaq.githubuser.utils.PagingLoadStateAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter

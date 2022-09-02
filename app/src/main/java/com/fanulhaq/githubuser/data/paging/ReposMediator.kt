@@ -52,7 +52,7 @@ class ReposMediator(
                 it.star = it.star?.toLong()?.numberShortFormatter()
                 it.updated_at = it.updated_at?.countDateUpdate()
             }
-            val endOfPaginationReached = response?.size ?: 0 < NETWORK_PAGE_SIZE
+            val endOfPaginationReached = (response?.size ?: 0) < NETWORK_PAGE_SIZE
 
             db.withTransaction {
                 if (loadType == LoadType.REFRESH) {

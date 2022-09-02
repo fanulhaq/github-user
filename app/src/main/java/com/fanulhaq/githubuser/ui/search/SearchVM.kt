@@ -13,7 +13,6 @@ import com.fanulhaq.githubuser.data.states.Resource
 import com.fanulhaq.githubuser.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

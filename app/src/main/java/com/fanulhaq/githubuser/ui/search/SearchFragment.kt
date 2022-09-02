@@ -51,7 +51,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(R.layout.fragment_sea
                 }
                 is Resource.Success -> {
                     if(state.finishLoading) progressBar.isVisible = false
-                    if(!state.data.isNullOrEmpty()) {
+                    if(state.data.isNotEmpty()) {
                         searchAdapter.addAll(state.data as ArrayList<SearchModel>, true)
                     }
                 }
