@@ -14,7 +14,7 @@
   - [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel) - UI related data holder, lifecycle aware
   - [Room](https://developer.android.com/topic/libraries/architecture/room) Persistence - Construct database
   - [Paging3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) - Display data on recycleView
-  - [Navigation Component](https://developer.android.com/guide/navigation) - Support for single Activity 
+  - [Navigation Component](https://developer.android.com/guide/navigation) 
 - Material Design
 - [Retrofit2 & Gson](https://github.com/square/retrofit) - Constructing the REST API
 - [OkHttp3](https://github.com/square/okhttp) - Implementing interceptor, logging and mocking web server
