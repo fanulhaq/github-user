@@ -4,7 +4,7 @@
 - 100% [Kotlin](https://kotlinlang.org/) 
 - [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) + [Flow](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/)
 - Architecture
-  - MVVM Architecture (Model - View - ViewModel - Model)
+  - MVVM Architecture (Model View ViewModel)
   - Repository Pattern
   - [Hilt](https://developer.android.com/training/dependency-injection/hilt-android) - Dependency Injection
   - SSOT
@@ -381,7 +381,7 @@ class SearchVM @Inject constructor(
 Diatas adalah contoh kecil untuk mendapatkan data pada project ini.  
   
 ## Paging  
-Paging adalah komponen yang ditetapkan oleh Google untuk memudahkan pengembang menyelesaikan pemuatan paging. Paging mendukung tiga jenis skema, yaitu data Network, Database, data Naringan + Database.
+Paging adalah komponen yang ditetapkan oleh Google untuk memudahkan pengembang menyelesaikan pemuatan paging. Paging mendukung tiga jenis skema, yaitu data Network, Database, data Network + Database.
 
 Pada project ini menggunakan Paging3 karena dapat mendeteksi status daftar data secara realtime, dan juga menyediakan mekanisme refresh dan retry, dll.
 
@@ -499,8 +499,3 @@ class DetailRepoImpl @Inject constructor(
     }.flow
 }
 ```
-
-
-*Give Feedback* 😉
-
-
